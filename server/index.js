@@ -29,7 +29,7 @@ app.get('/', (req, res) => {
 });
 
 // Connect to MongoDB - Hardcoded fallback URI
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://aman-agrawal02:Agrawal%4002DbMongo@amanagrawal.8bfiu.mongodb.net/MohallaMart';
+const MONGODB_URI = process.env.MONGODB_URI;
 
 // Connect to MongoDB
 mongoose
