@@ -43,7 +43,7 @@ export function BusinessRegistrationForm() {
         zipCode: '',
         country: '',
       },
-      contact: {
+      contactInfo: {
         phone: '',
         email: '',
         website: '',
@@ -51,7 +51,16 @@ export function BusinessRegistrationForm() {
       location: {
         coordinates: [0, 0], // [longitude, latitude]
       },
-      mainPhoto: '',
+      businessHours: {
+        monday: { open: '09:00', close: '17:00' },
+        tuesday: { open: '09:00', close: '17:00' },
+        wednesday: { open: '09:00', close: '17:00' },
+        thursday: { open: '09:00', close: '17:00' },
+        friday: { open: '09:00', close: '17:00' },
+        saturday: { open: '09:00', close: '17:00' },
+        sunday: { open: 'closed', close: 'closed' },
+      },
+      mainPhoto: null,
     },
   });
 
@@ -68,31 +77,76 @@ export function BusinessRegistrationForm() {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      form.setValue('mainPhoto', file);
+      
+      // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
-        form.setValue('mainPhoto', reader.result);
       };
       reader.readAsDataURL(file);
     }
   };
+// In the onSubmit function:
 
-  const onSubmit = async (data) => {
-    try {
-      await createBusiness(data).unwrap();
-      toast({
-        title: 'Success!',
-        description: 'Your business has been registered successfully.',
-      });
-      navigate('/dashboard');
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: error.data?.message || 'Something went wrong',
-        variant: 'destructive',
-      });
+const onSubmit = async (data) => {
+  try {
+    console.log("Form data:", data); // Debug log
+    
+    // Build business data
+    const businessData = {
+      name: data.name,
+      category: data.category,
+      description: data.description,
+      contactInfo: data.contactInfo, // Fixed: use contactInfo instead of contact
+      address: data.address,
+      businessHours: data.businessHours,
+      location: {
+        type: 'Point',
+        coordinates: data.location?.coordinates || [0, 0]
+      }
+    };
+    
+    // Create FormData and append data
+    const formData = new FormData();
+    
+    // Add main photo if exists
+    if (data.mainPhoto) {
+      formData.append('mainPhoto', data.mainPhoto);
     }
-  };
+    
+    // Add other business data as JSON strings
+    Object.keys(businessData).forEach(key => {
+      if (businessData[key]) {
+        if (typeof businessData[key] === 'object') {
+          formData.append(key, JSON.stringify(businessData[key]));
+        } else {
+          formData.append(key, businessData[key]);
+        }
+      }
+    });
+    
+    // Log what we're sending to the server
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+    
+    const result = await createBusiness(formData).unwrap();
+    
+    toast({
+      title: "Success!",
+      description: "Business registered successfully",
+    });
+    navigate(`/business/${result._id}`);
+  } catch (error) {
+    console.error("Registration error:", error);
+    toast({
+      title: "Error",
+      description: error.data?.message || "Failed to register business",
+      variant: "destructive",
+    });
+  }
+};
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
@@ -227,7 +281,7 @@ export function BusinessRegistrationForm() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="contact.phone"
+                  name="contactInfo.phone"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Phone Number</FormLabel>
@@ -240,7 +294,7 @@ export function BusinessRegistrationForm() {
                 />
                 <FormField
                   control={form.control}
-                  name="contact.email"
+                  name="contactInfo.email"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Business Email</FormLabel>
@@ -253,7 +307,7 @@ export function BusinessRegistrationForm() {
                 />
                 <FormField
                   control={form.control}
-                  name="contact.website"
+                  name="contactInfo.website"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Website (Optional)</FormLabel>

@@ -1,6 +1,6 @@
 import express from 'express';
 import Business from '../models/Business.js';
-import authenticate from '../middleware/authenticate.js';
+import authenticate from '../middlewares/authenticate.js';
 
 const router = express.Router();
 

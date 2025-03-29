@@ -31,14 +31,15 @@ const businessSchema = new mongoose.Schema(
     location: {
       type: {
         type: String,
-        default: 'Point',
+        enum: ['Point'],
+        default: 'Point'
       },
       coordinates: {
         type: [Number], // [longitude, latitude]
-        required: true,
-      },
+        default: [0, 0]
+      }
     },
-    contact: {
+    contactInfo: {
       phone: String,
       email: String,
       website: String,
@@ -67,7 +68,7 @@ const businessSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Deal',
     }],
-    verified: {
+    isVerified: {
       type: Boolean,
       default: false,
     },
@@ -79,6 +80,11 @@ const businessSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+businessSchema.pre('save', function(next) {
+  this.updatedAt = new Date();
+  next();
+});
 
 // Create index for geospatial queries
 businessSchema.index({ location: '2dsphere' });

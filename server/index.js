@@ -9,7 +9,11 @@ import { fileURLToPath } from 'url';
 
 // Import routes
 import authRoutes from './routes/auth.routes.js';
-import businessRoutes from './routes/business.routes.js';
+import businessRoutes from './routes/business/businessRoutes.js';
+import hoursRoutes from './routes/business/hoursRoutes.js';
+import locationRoutes from './routes/business/locationRoutes.js';
+import analyticsRoutes from './routes/business/analyticsRoutes.js';
+import photosRoutes from './routes/business/photosRoutes.js';
 // import dealRoutes from './routes/deal.routes.js';
 // import reviewRoutes from './routes/review.routes.js';
 
@@ -32,6 +36,11 @@ app.use(morgan('dev'));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/businesses', businessRoutes);
+app.use('/api/business-hours', hoursRoutes);
+app.use('/api/business-locations', locationRoutes);
+app.use('/api/business-analytics', analyticsRoutes);
+app.use('/api/business-photos', photosRoutes);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // app.use('/api/deals', dealRoutes);
 // app.use('/api/reviews', reviewRoutes);
 
