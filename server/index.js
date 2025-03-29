@@ -7,11 +7,17 @@ import helmet from 'helmet';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+// Import routes
+import authRoutes from './routes/auth.routes.js';
+import businessRoutes from './routes/business.routes.js';
+// import dealRoutes from './routes/deal.routes.js';
+// import reviewRoutes from './routes/review.routes.js';
+
 // ES Module fix for __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load environment variables - fix for ES Modules
+// Load environment variables
 dotenv.config();
 
 // Initialize Express app
@@ -23,15 +29,20 @@ app.use(express.json());
 app.use(helmet());
 app.use(morgan('dev'));
 
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/businesses', businessRoutes);
+// app.use('/api/deals', dealRoutes);
+// app.use('/api/reviews', reviewRoutes);
+
 // Health check route
 app.get('/', (req, res) => {
   res.json({ message: 'MohallaMart API is running' });
 });
 
-// Connect to MongoDB - Hardcoded fallback URI
+// Connect to MongoDB
 const MONGODB_URI = process.env.MONGODB_URI;
 
-// Connect to MongoDB
 mongoose
   .connect(MONGODB_URI)
   .then(() => {
