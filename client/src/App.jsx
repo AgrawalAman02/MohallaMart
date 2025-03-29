@@ -6,7 +6,8 @@ import { appStore } from '@/store/appStore';
 // Import pages
 import { Home } from '@/pages/Home';
 import { BusinessDetailPage } from '@/pages/Business/BusinessDetailPage';
-// import { LoginPage } from '@/pages/Auth/LoginPage';
+import { LoginPage } from '@/pages/Auth/LoginPage';
+import { RegisterPage } from '@/pages/Auth/RegisterPage';
 
 function App() {
   return (
@@ -15,8 +16,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/business/:id" element={<BusinessDetailPage />} />
-          {/* <Route path="/login" element={<LoginPage />} /> */}
-          <Route path="/register" element={<div>Register Page</div>} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
         </Routes>
         <Toaster />
       </BrowserRouter>
