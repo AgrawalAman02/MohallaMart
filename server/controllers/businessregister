@@ -1,0 +1,142 @@
+import Business from '../models/business-model.js';
+
+export const registerBusiness = async (req, res) => {
+  try {
+    const {
+      name,
+      category,
+      description,
+      address,
+      contact,
+      mainPhoto,
+    } = req.body;
+
+    // Validate required fields
+    if (!name || !category || !description) {
+      return res.status(400).json({
+        message: 'Please provide all required fields'
+      });
+    }
+
+    // Get coordinates from address using a geocoding service
+    // For now, using dummy coordinates
+    const coordinates = [77.2090, 28.6139]; // Example: Delhi coordinates
+
+    // Create new business
+    const business = new Business({
+      name,
+      owner: req.user.id, // From auth middleware
+      category,
+      description,
+      address: {
+        street: address.street,
+        city: address.city,
+        state: address.state,
+        zipCode: address.zipCode,
+        country: address.country || 'India' // Default country
+      },
+      location: {
+        type: 'Point',
+        coordinates: coordinates
+      },
+      contact: {
+        phone: contact.phone,
+        email: contact.email,
+        website: contact.website
+      },
+      mainPhoto: mainPhoto,
+      status: 'pending', // New businesses start as pending
+      businessHours: {
+        monday: { open: '09:00', close: '18:00' },
+        tuesday: { open: '09:00', close: '18:00' },
+        wednesday: { open: '09:00', close: '18:00' },
+        thursday: { open: '09:00', close: '18:00' },
+        friday: { open: '09:00', close: '18:00' },
+        saturday: { open: '09:00', close: '18:00' },
+        sunday: { open: 'closed', close: 'closed' }
+      }
+    });
+
+    // Save the business
+    const savedBusiness = await business.save();
+
+    // Update user's businesses array
+    await req.user.businesses.push(savedBusiness._id);
+    await req.user.save();
+
+    res.status(201).json({
+      success: true,
+      data: savedBusiness,
+      message: 'Business registered successfully'
+    });
+
+  } catch (error) {
+    console.error('Business registration error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error registering business',
+      error: error.message
+    });
+  }
+};
+
+export const updateBusiness = async (req, res) => {
+  try {
+    const businessId = req.params.id;
+    const updates = req.body;
+
+    // Find business and check ownership
+    const business = await Business.findById(businessId);
+    if (!business) {
+      return res.status(404).json({ message: 'Business not found' });
+    }
+
+    if (business.owner.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to update this business' });
+    }
+
+    // Update the business
+    const updatedBusiness = await Business.findByIdAndUpdate(
+      businessId,
+      { $set: updates },
+      { new: true, runValidators: true }
+    );
+
+    res.json({
+      success: true,
+      data: updatedBusiness,
+      message: 'Business updated successfully'
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error updating business',
+      error: error.message
+    });
+  }
+};
+
+export const getBusinessDetails = async (req, res) => {
+  try {
+    const business = await Business.findById(req.params.id)
+      .populate('owner', 'name email')
+      .populate('activeDeals');
+
+    if (!business) {
+      return res.status(404).json({ message: 'Business not found' });
+    }
+
+    res.json({
+      success: true,
+      data: business
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching business details',
+      error: error.message
+    });
+  }
+};
