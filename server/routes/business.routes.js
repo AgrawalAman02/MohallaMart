@@ -1,5 +1,6 @@
 import express from 'express';
 import Business from '../models/business-model.js';
+import Deal from '../models/deal-model.js';
 import authenticate from '../middlewares/authenticate.js';
 
 const router = express.Router();
@@ -47,9 +48,15 @@ router.get('/search', async (req, res) => {
     
     const query = {};
     
-    // Add text search if query is provided
+    // Replace text search with regex search: match using the first half of the query
     if (q) {
-      query.$text = { $search: q };
+      const halfLength = Math.ceil(q.length / 2);
+      const pattern = q.substring(0, halfLength);
+      const regex = new RegExp(pattern, 'i');
+      query.$or = [
+        { name: regex },
+        { description: regex }
+      ];
     }
     
     // Add geospatial search if coordinates are provided
