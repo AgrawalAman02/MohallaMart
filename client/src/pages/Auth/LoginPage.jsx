@@ -1,3 +1,5 @@
+import { useDispatch } from 'react-redux';
+import { setCredentials } from '@/features/auth/authSlice';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -15,6 +17,7 @@ export function LoginPage() {
   const [login, { isLoading }] = useLoginMutation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const dispatch = useDispatch();
   
   const form = useForm({
     defaultValues: {
@@ -27,10 +30,10 @@ export function LoginPage() {
     try {
       const result = await login(data).unwrap();
       
-      // Store token in localStorage
-      localStorage.setItem('token', result.token);
-      // Store user info in localStorage
-      localStorage.setItem('user', JSON.stringify(result.user));
+      dispatch(setCredentials({
+        user: result.user,
+        token: result.token
+      }));
       
       toast({
         title: 'Login successful',
