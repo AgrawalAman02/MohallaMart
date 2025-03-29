@@ -30,6 +30,7 @@ export function LoginPage() {
     try {
       const result = await login(data).unwrap();
       
+      // Store credentials in Redux store (which will also save to localStorage)
       dispatch(setCredentials({
         user: result.user,
         token: result.token
@@ -40,7 +41,12 @@ export function LoginPage() {
         description: 'Welcome back!',
       });
       
-      navigate('/');
+      // Redirect based on user role
+      if (result.user.role === 'business-owner') {
+        navigate('/dashboard');
+      } else {
+        navigate('/');
+      }
     } catch (error) {
       toast({
         title: 'Login failed',

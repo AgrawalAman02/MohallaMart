@@ -1,7 +1,6 @@
-import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Search, Menu, X, MapPin, User, ShoppingBag, LogOut, Settings } from 'lucide-react';
+import { Search, Menu, MapPin, User, ShoppingBag, LogOut, Settings } from 'lucide-react';
 import { logout, selectCurrentUser, selectIsAuthenticated } from '@/features/auth/authSlice';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,7 +22,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-
 export function Header() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -35,14 +33,12 @@ export function Header() {
     navigate('/login');
   };
 
-  
-
   const UserMenu = () => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={user?.imageUrl} alt={user?.name} />
+            <AvatarImage src={user?.profilePicture} alt={user?.name} />
             <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
           </Avatar>
         </Button>
@@ -60,13 +56,19 @@ export function Header() {
             <User className="mr-2 h-4 w-4" />
             <span>Profile</span>
           </DropdownMenuItem>
+          {user?.role === 'business-owner' && (
+            <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+              <ShoppingBag className="mr-2 h-4 w-4" />
+              <span>Dashboard</span>
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem onClick={() => navigate('/settings')}>
             <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+        <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
         </DropdownMenuItem>
@@ -74,11 +76,10 @@ export function Header() {
     </DropdownMenu>
   );
 
-
-
   return (
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between px-4">
+        {/* Left side with logo and navigation */}
         <div className="flex items-center gap-2 md:gap-4">
           <Sheet>
             <SheetTrigger asChild>
@@ -95,17 +96,16 @@ export function Header() {
                 <Link to="/" className="text-lg font-medium">Home</Link>
                 <Link to="/explore" className="text-lg font-medium">Explore</Link>
                 <Link to="/deals" className="text-lg font-medium">Deals</Link>
+                {isAuthenticated && user?.role === 'business-owner' && (
+                  <Link to="/dashboard" className="text-lg font-medium">Dashboard</Link>
+                )}
                 {isAuthenticated ? (
                   <>
                     <Link to="/profile" className="text-lg font-medium">Profile</Link>
-                    <Link to="/favorites" className="text-lg font-medium">Favorites</Link>
-                    <Button variant="outline" onClick={() => setIsLoggedIn(false)}>Sign Out</Button>
+                    <Button variant="outline" onClick={handleLogout}>Sign Out</Button>
                   </>
                 ) : (
-                  <>
-                    <Link to="/login" className="text-lg font-medium">Login</Link>
-                    <Link to="/register" className="text-lg font-medium">Register</Link>
-                  </>
+                  <Link to="/login" className="text-lg font-medium">Login</Link>
                 )}
               </nav>
             </SheetContent>
@@ -126,30 +126,32 @@ export function Header() {
             <Link to="/deals" className="font-medium transition-colors hover:text-primary">
               Deals
             </Link>
+            {isAuthenticated && user?.role === 'business-owner' && (
+              <Link to="/dashboard" className="font-medium transition-colors hover:text-primary">
+                Dashboard
+              </Link>
+            )}
           </nav>
         </div>
         
+        {/* Right side with search and user actions */}
         <div className="flex items-center gap-2">
-        <div className="hidden md:flex relative w-64">
-          <MapPin className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Search nearby..."
-            className="w-full rounded-full pl-8 md:w-64 lg:w-80"
-          />
+          <div className="hidden md:flex relative w-64">
+            <MapPin className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search nearby..."
+              className="w-full rounded-full pl-8 md:w-64 lg:w-80"
+            />
+          </div>
+          
+          {isAuthenticated ? (
+            <UserMenu />
+          ) : (
+            <Button size="sm" onClick={() => navigate('/login')}>Sign In</Button>
+          )}
         </div>
-        
-        {isAuthenticated ? (
-          <UserMenu />
-        ) : (
-          <Link to="/login">
-            <Button size="sm">Sign In</Button>
-          </Link>
-        )}
       </div>
-
-        
-      </div> 
     </header>
   );
 }

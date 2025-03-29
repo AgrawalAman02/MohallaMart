@@ -1,5 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { MapPin, Search, Filter, MapIcon, Menu } from 'lucide-react';
+import { selectCurrentUser } from '@/features/auth/authSlice';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -8,6 +11,15 @@ import { BusinessCard } from '@/components/business/BusinessCard';
 
 export function Home() {
   const [view, setView] = useState('list');
+  const navigate = useNavigate();
+  const user = useSelector(selectCurrentUser);
+  
+  // Check if user is logged in as business owner and redirect if needed
+  useEffect(() => {
+    if (user && user.role === 'business-owner') {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
   
   // Mock data for development
   const categories = [
@@ -104,7 +116,6 @@ export function Home() {
               <div className="bg-muted rounded-lg h-[400px] flex items-center justify-center">
                 <div className="text-center">
                   <p className="text-muted-foreground">Map view will be implemented here</p>
-                  <p className="text-sm text-muted-foreground">Using Leaflet for the hackathon</p>
                 </div>
               </div>
             )}
