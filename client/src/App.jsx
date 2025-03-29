@@ -8,6 +8,7 @@ import { Home } from '@/pages/Home';
 import { BusinessDetailPage } from '@/pages/Business/BusinessDetailPage';
 import { LoginPage } from '@/pages/Auth/LoginPage';
 import { RegisterPage } from '@/pages/Auth/RegisterPage';
+import { BusinessRegistrationForm } from './components/business/BusinessRegistration';
 
 function App() {
   return (
@@ -17,7 +18,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/business/:id" element={<BusinessDetailPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/register" element={<RegisterPage />} />          
+          <Route path="/register-business" element={<BusinessRegistrationForm />} />
         </Routes>
         <Toaster />
       </BrowserRouter>
