@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 
+// Define the Deal schema
 const dealSchema = new mongoose.Schema(
   {
     business: {
@@ -61,10 +62,11 @@ const dealSchema = new mongoose.Schema(
       enum: ['active', 'upcoming', 'expired', 'paused'],
       default: 'active',
     },
+    active: { type: Boolean, default: true }
   },
   { timestamps: true }
 );
 
-const Deal = mongoose.model('Deal', dealSchema);
-
+// Ensure model hasn't been registered before
+const Deal = mongoose.models.Deal || mongoose.model('Deal', dealSchema);
 export default Deal;
