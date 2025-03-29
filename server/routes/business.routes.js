@@ -47,9 +47,13 @@ router.get('/search', async (req, res) => {
     
     const query = {};
     
-    // Add text search if query is provided
+    // Add regex-based search for partial matching if query is provided
     if (q) {
-      query.$text = { $search: q };
+      query.$or = [
+        { name: { $regex: q, $options: 'i' } }, // Case-insensitive partial match on name
+        { description: { $regex: q, $options: 'i' } }, // Case-insensitive partial match on description
+        { keywords: { $regex: q, $options: 'i' } } // Case-insensitive partial match on keywords
+      ];
     }
     
     // Add geospatial search if coordinates are provided
@@ -106,6 +110,7 @@ router.get('/:id', async (req, res) => {
 
 // Create a new business (requires authentication)
 router.post('/', authenticate, async (req, res) => {
+  // kachra (model match nahi kar raha?)
   try {
     const newBusiness = new Business({
       ...req.body,

@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/header/Header';
 import { BusinessCard } from '@/components/business/BusinessCard';
+import { SearchPage } from './search/search-page';
 
 export function Home() {
   const [view, setView] = useState('list');
@@ -41,12 +42,15 @@ export function Home() {
             
             <div className="flex items-center space-x-2 mb-6">
               <div className="relative flex-1">
-                <MapPin className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
+                {/* <Input
                   type="search"
                   placeholder="Search nearby businesses..."
                   className="w-full pl-8 pr-4"
-                />
+                /> */}
+                <div className="w-full flex items-center justify-center pl-8 pr-4">
+                  <MapPin className="absolute left-2.5  h-4 w-4 text-muted-foreground" />
+                  <SearchPage/>
+                </div>
               </div>
               <Button variant="outline" size="icon">
                 <Filter className="h-4 w-4" />
