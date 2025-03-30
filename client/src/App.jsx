@@ -1,19 +1,29 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import { Toaster } from '@/components/ui/toaster';
-import { appStore } from '@/store/appStore';
+import { Toaster } from './components/ui/toaster';
+import { appStore } from './store/appStore';
 
 // Import pages
-import { Home } from '@/pages/Home';
-import { BusinessDetailPage } from '@/pages/Business/BusinessDetailPage';
-import { LoginPage } from '@/pages/Auth/LoginPage';
-import { RegisterPage } from '@/pages/Auth/RegisterPage';
-import { Dashboard } from '@/pages/Business/Dashboard';
+
+import { Home } from './pages/Home';
+import { BusinessDetailPage } from './pages/Business/BusinessDetailPage';
+import { LoginPage } from './pages/Auth/LoginPage';
+import { RegisterPage } from './pages/Auth/RegisterPage';
+import { Dashboard } from './pages/Business/Dashboard';
+import SearchPage from './pages/search/search-page';
+import BusinessProfile from './pages/Business/BusinessProfile';
+
+//import { Home } from '@/pages/Home';
+//import { BusinessDetailPage } from '@/pages/Business/BusinessDetailPage';
+//import { LoginPage } from '@/pages/Auth/LoginPage';
+//import { RegisterPage } from '@/pages/Auth/RegisterPage';
+//import { Dashboard } from '@/pages/Business/Dashboard';
 import { BusinessEditForm } from '@/pages/Business/BusinessEditForm';
 import { BusinessAnalytics } from '@/pages/Business/BusinessAnalytics';
 import SearchPage from './pages/search-page';
 import BusinessProfile from './pages/Business/BusinessProfile';
 import BusinessRegistration from './components/business/BusinessRegistration';
+
 
 function App() {
   return (
@@ -38,3 +48,4 @@ function App() {
 }
 
 export default App;
+
