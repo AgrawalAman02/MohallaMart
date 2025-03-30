@@ -37,9 +37,9 @@ export function Header() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="rounded-full">
-          <Avatar className="h-8 w-8">
+          <Avatar className="h-8 w-8 text-white">
             <AvatarImage src={user?.profilePicture} alt={user?.name} />
-            <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
+            <AvatarFallback className='text-black'>{user?.name?.charAt(0)}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>

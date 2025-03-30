@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/header/Header';
 import { BusinessCard } from '@/components/business/BusinessCard';
+import SearchPage from './search-page';
 
 export function Home() {
   const [view, setView] = useState('list');
@@ -68,35 +69,54 @@ export function Home() {
             transition={{ duration: 0.5 }}
             className="container mx-auto relative z-10"
           >
-            {/* Enhanced Hero Section */}
-            <div className="mb-16 max-w-3xl mx-auto text-center">
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-                className="flex items-center justify-center gap-2 mb-6"
-              >
-                <Sparkles className="h-6 w-6 text-indigo-400" />
-                <span className="text-md font-semibold text-indigo-400 uppercase tracking-wider">Your Local Marketplace</span>
-              </motion.div>
-              <motion.h1 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="text-5xl md:text-6xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-blue-500 to-indigo-500"
-              >
-                Discover & Support Local Businesses
-              </motion.h1>
-              <motion.p 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4 }}
-                className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8"
-              >
-                Connect with your community, discover unique experiences, and empower local entrepreneurs right in your neighborhood.
-              </motion.p>
+            {/* /* Enhanced Hero Section */} */}
+                  <div className="mb-16 max-w-3xl mx-auto text-center">
+                    <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="flex items-center justify-center gap-2 mb-6"
+                    >
+                    <Sparkles className="h-6 w-6 text-indigo-400" />
+                    <span className="text-md font-semibold text-indigo-400 uppercase tracking-wider">Your Local Marketplace</span>
+                    </motion.div>
+                    <motion.h1 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-5xl md:text-6xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-blue-500 to-indigo-500"
+                    >
+                    Discover & Support Local Businesses
+                    </motion.h1>
+                    <motion.p 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.4 }}
+                    className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8"
+                    >
+                    Connect with your community, discover unique experiences, and empower local entrepreneurs right in your neighborhood.
+                    </motion.p>
 
-              {/* Enhanced Search Section */}
+                    {/* Enhanced Search Section with SearchPage Component */}
+                    <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="max-w-2xl mx-auto"
+                    >
+                    <SearchPage />
+                    </motion.div>
+
+                    <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="flex justify-center gap-2 mt-4"
+                    >
+                    <Button variant="outline" size="lg" className="bg-slate-800/50 backdrop-blur-lg hover:bg-slate-700/50 rounded-full border-slate-700">
+                      <Filter className="h-5 w-5" />
+                    </Button>
+                    </motion.div>
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

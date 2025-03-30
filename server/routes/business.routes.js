@@ -2,6 +2,7 @@ import express from 'express';
 import Business from '../models/business-model.js';
 import Deal from '../models/deal-model.js';
 import authenticate from '../middlewares/authenticate.js';
+import cloudinary from '../config/cloudinary.js';
 
 const router = express.Router();
 
@@ -114,9 +115,15 @@ router.get('/:id', async (req, res) => {
 // Create a new business (requires authentication)
 router.post('/', authenticate, async (req, res) => {
   try {
+    // Extract photos from request body
+    const { photos, mainPhoto, ...businessData } = req.body;
+    
+    // Create new business with uploaded photo URLs
     const newBusiness = new Business({
-      ...req.body,
-      owner: req.user.id // from auth middleware
+      ...businessData,
+      photos: photos || [],
+      mainPhoto: mainPhoto || (photos && photos[0]) || '',
+      owner: req.user.id
     });
     
     const savedBusiness = await newBusiness.save();

@@ -1,361 +1,372 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
-import { MapPin, Upload, Store } from 'lucide-react';
-import { useCreateBusinessMutation } from '@/api/businessApiSlice';
-import { useToast } from '@/hooks/use-toast';
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
-import { Textarea } from '../ui/textarea';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import axios from "axios";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/hooks/use-toast";
+import { Upload } from "lucide-react";
 
+const businessSchema = z.object({
+  name: z.string().min(2, "Business name must be at least 2 characters"),
+  category: z.string(),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  address: z.object({
+    street: z.string(),
+    city: z.string(),
+    state: z.string(),
+    zipCode: z.string(),
+    country: z.string(),
+  }),
+  contactInfo: z.object({
+    phone: z.string(),
+    email: z.string().email(),
+    website: z.string().url().optional(),
+  }),
+  businessHours: z.object({
+    monday: z.object({ open: z.string(), close: z.string() }),
+    tuesday: z.object({ open: z.string(), close: z.string() }),
+    wednesday: z.object({ open: z.string(), close: z.string() }),
+    thursday: z.object({ open: z.string(), close: z.string() }),
+    friday: z.object({ open: z.string(), close: z.string() }),
+    saturday: z.object({ open: z.string(), close: z.string() }),
+    sunday: z.object({ open: z.string(), close: z.string() }),
+  }),
+});
 
-export function BusinessRegistrationForm() {
-  const [createBusiness, { isLoading }] = useCreateBusinessMutation();
+const BusinessRegistration = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [imagePreview, setImagePreview] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [photos, setPhotos] = useState([]);
 
   const form = useForm({
+    resolver: zodResolver(businessSchema),
     defaultValues: {
-      name: '',
-      category: '',
-      description: '',
+      name: "",
+      category: "",
+      description: "",
       address: {
-        street: '',
-        city: '',
-        state: '',
-        zipCode: '',
-        country: '',
+        street: "",
+        city: "",
+        state: "",
+        zipCode: "",
+        country: "",
       },
       contactInfo: {
-        phone: '',
-        email: '',
-        website: '',
-      },
-      location: {
-        coordinates: [0, 0], // [longitude, latitude]
+        phone: "",
+        email: "",
+        website: "",
       },
       businessHours: {
-        monday: { open: '09:00', close: '17:00' },
-        tuesday: { open: '09:00', close: '17:00' },
-        wednesday: { open: '09:00', close: '17:00' },
-        thursday: { open: '09:00', close: '17:00' },
-        friday: { open: '09:00', close: '17:00' },
-        saturday: { open: '09:00', close: '17:00' },
-        sunday: { open: 'closed', close: 'closed' },
+        monday: { open: "09:00", close: "17:00" },
+        tuesday: { open: "09:00", close: "17:00" },
+        wednesday: { open: "09:00", close: "17:00" },
+        thursday: { open: "09:00", close: "17:00" },
+        friday: { open: "09:00", close: "17:00" },
+        saturday: { open: "09:00", close: "17:00" },
+        sunday: { open: "09:00", close: "17:00" },
       },
-      mainPhoto: null,
     },
   });
 
-  const businessCategories = [
-    'restaurant',
-    'retail',
-    'service',
-    'cafe',
-    'bakery',
-    'grocery',
-    'other',
-  ];
+  const handleImageUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    const uploadPromises = files.map(async (file) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "business_photos");
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      form.setValue('mainPhoto', file);
-      
-      // Create preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
+      try {
+        const response = await axios.post(
+          `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME}/image/upload`,
+          formData
+        );
+        return response.data.secure_url;
+      } catch (error) {
+        console.error("Upload error:", error);
+        toast({
+          title: "Error",
+          description: "Failed to upload image",
+          variant: "destructive",
+        });
+        return null;
+      }
+    });
+
+    const uploadedUrls = await Promise.all(uploadPromises);
+    setPhotos([...photos, ...uploadedUrls.filter(url => url !== null)]);
+  };
+
+  const onSubmit = async (data) => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const businessData = {
+        ...data,
+        photos,
+        mainPhoto: photos[0],
       };
-      reader.readAsDataURL(file);
+
+      const response = await axios.post(
+        "http://localhost:5000/api/businesses",
+        businessData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      toast({
+        title: "Success",
+        description: "Business registered successfully!",
+      });
+      navigate(`/business/${response.data._id}`);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "Failed to register business",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
-// In the onSubmit function:
-
-const onSubmit = async (data) => {
-  try {
-    console.log("Form data:", data); // Debug log
-    
-    // Build business data
-    const businessData = {
-      name: data.name,
-      category: data.category,
-      description: data.description,
-      contactInfo: data.contactInfo, // Fixed: use contactInfo instead of contact
-      address: data.address,
-      businessHours: data.businessHours,
-      location: {
-        type: 'Point',
-        coordinates: data.location?.coordinates || [0, 0]
-      }
-    };
-    
-    // Create FormData and append data
-    const formData = new FormData();
-    
-    // Add main photo if exists
-    if (data.mainPhoto) {
-      formData.append('mainPhoto', data.mainPhoto);
-    }
-    
-    // Add other business data as JSON strings
-    Object.keys(businessData).forEach(key => {
-      if (businessData[key]) {
-        if (typeof businessData[key] === 'object') {
-          formData.append(key, JSON.stringify(businessData[key]));
-        } else {
-          formData.append(key, businessData[key]);
-        }
-      }
-    });
-    
-    // Log what we're sending to the server
-    for (let [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
-    
-    const result = await createBusiness(formData).unwrap();
-    
-    toast({
-      title: "Success!",
-      description: "Business registered successfully",
-    });
-    navigate(`/business/${result._id}`);
-  } catch (error) {
-    console.error("Registration error:", error);
-    toast({
-      title: "Error",
-      description: error.data?.message || "Failed to register business",
-      variant: "destructive",
-    });
-  }
-};
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold">Register Your Business</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Business Name */}
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Business Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter your business name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="container max-w-4xl mx-auto py-8"
+    >
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold">Register Your Business</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              {/* Basic Information */}
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Business Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            {/* Category */}
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Business Category</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {businessCategories.map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {category.charAt(0).toUpperCase() + category.slice(1)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a category" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="restaurant">Restaurant</SelectItem>
+                          <SelectItem value="retail">Retail</SelectItem>
+                          <SelectItem value="service">Service</SelectItem>
+                          <SelectItem value="cafe">Cafe</SelectItem>
+                          <SelectItem value="bakery">Bakery</SelectItem>
+                          <SelectItem value="grocery">Grocery</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            {/* Description */}
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Tell us about your business..."
-                      className="h-32"
-                      {...field}
+                {/* Image Upload */}
+                <div className="space-y-2">
+                  <FormLabel>Business Photos</FormLabel>
+                  <div className="flex items-center gap-4">
+                    <Input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      id="photos"
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Address */}
-            <div className="space-y-4">
-              <h3 className="font-medium">Address</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="address.street"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Street Address</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="address.city"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>City</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="address.state"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>State</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="address.zipCode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>ZIP Code</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            {/* Contact Information */}
-            <div className="space-y-4">
-              <h3 className="font-medium">Contact Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="contactInfo.phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone Number</FormLabel>
-                      <FormControl>
-                        <Input type="tel" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="contactInfo.email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Business Email</FormLabel>
-                      <FormControl>
-                        <Input type="email" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="contactInfo.website"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Website (Optional)</FormLabel>
-                      <FormControl>
-                        <Input type="url" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            {/* Image Upload */}
-            <div className="space-y-4">
-              <FormLabel>Business Photo</FormLabel>
-              <div className="flex items-center gap-4">
-                <label className="cursor-pointer">
-                  <div className="w-32 h-32 border-2 border-dashed rounded-lg flex items-center justify-center">
-                    {imagePreview ? (
-                      <img
-                        src={imagePreview}
-                        alt="Preview"
-                        className="w-full h-full object-cover rounded-lg"
-                      />
-                    ) : (
-                      <Upload className="h-8 w-8 text-muted-foreground" />
-                    )}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => document.getElementById("photos").click()}
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      Upload Photos
+                    </Button>
                   </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageChange}
-                  />
-                </label>
-                <div className="text-sm text-muted-foreground">
-                  Upload a main photo for your business
+                  {photos.length > 0 && (
+                    <div className="grid grid-cols-3 gap-4 mt-4">
+                      {photos.map((url, index) => (
+                        <img
+                          key={index}
+                          src={url}
+                          alt={`Business photo ${index + 1}`}
+                          className="w-full h-32 object-cover rounded-md"
+                        />
+                      ))}
+                    </div>
+                    
+                  )}
                 </div>
-              </div>
-            </div>
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} placeholder="Describe your business..." />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Registering...' : 'Register Business'}
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+                {/* Address Fields */}
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="address.street"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Street Address</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="address.city"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>City</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="address.state"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>State</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="address.zipCode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>ZIP Code</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="address.country"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Country</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Contact Information */}
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="contactInfo.phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone Number</FormLabel>
+                        <FormControl>
+                          <Input {...field} type="tel" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="contactInfo.email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input {...field} type="email" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="contactInfo.website"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Website (Optional)</FormLabel>
+                        <FormControl>
+                          <Input {...field} type="url" placeholder="https://" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Registering..." : "Register Business"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
-}
+};
+
+export default BusinessRegistration;

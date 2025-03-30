@@ -9,9 +9,11 @@ import { BusinessDetailPage } from '@/pages/Business/BusinessDetailPage';
 import { LoginPage } from '@/pages/Auth/LoginPage';
 import { RegisterPage } from '@/pages/Auth/RegisterPage';
 import { Dashboard } from '@/pages/Business/Dashboard';
-import { BusinessRegistrationForm } from '@/components/business/BusinessRegistration';
 import { BusinessEditForm } from '@/pages/Business/BusinessEditForm';
 import { BusinessAnalytics } from '@/pages/Business/BusinessAnalytics';
+import SearchPage from './pages/search-page';
+import BusinessProfile from './pages/Business/BusinessProfile';
+import BusinessRegistration from './components/business/BusinessRegistration';
 
 function App() {
   return (
@@ -23,9 +25,11 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/business/new" element={<BusinessRegistrationForm />} />
+          <Route path="/business/new" element={<BusinessRegistration />} />
           <Route path="/business/edit/:id" element={<BusinessEditForm />} />
           <Route path="/business/analytics/:id" element={<BusinessAnalytics />} />
+          <Route path="/business/profile/:id" element={<BusinessProfile />} />
+          <Route path="/search" element={<SearchPage />} />
         </Routes>
         <Toaster />
       </BrowserRouter>
