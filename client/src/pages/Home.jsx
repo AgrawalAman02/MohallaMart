@@ -69,7 +69,7 @@ export function Home() {
             transition={{ duration: 0.5 }}
             className="container mx-auto relative z-10"
           >
-            {/* /* Enhanced Hero Section */} */}
+            {/* /* Enhanced Hero Section */} 
                   <div className="mb-16 max-w-3xl mx-auto text-center">
                     <motion.div
                     initial={{ opacity: 0, x: -20 }}
