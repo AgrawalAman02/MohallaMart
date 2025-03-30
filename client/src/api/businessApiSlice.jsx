@@ -8,6 +8,30 @@ export const businessApiSlice = apiSlice.injectEndpoints({
       providesTags: ['Business'],
     }),
 
+    getAllBusinesses: builder.query({
+      query: (params) => ({
+        url: '/businesses',
+        params: {
+          category: params?.category,
+          page: params?.page || 1,
+          limit: params?.limit || 12
+        }
+      }),
+      providesTags: ['Businesses']
+    }),
+    
+    // Get featured/trending businesses
+    getFeaturedBusinesses: builder.query({
+      query: () => '/businesses/featured',
+      providesTags: ['FeaturedBusinesses']
+    }),
+
+    // Get businesses with active deals
+    getBusinessesWithDeals: builder.query({
+      query: () => '/businesses/with-deals',
+      providesTags: ['BusinessDeals']
+    }),
+
     // Get single business details
     getBusiness: builder.query({
       query: (id) => `/businesses/${id}`,
@@ -132,6 +156,9 @@ export const businessApiSlice = apiSlice.injectEndpoints({
 export const {
   useGetBusinessesQuery,
   useGetBusinessQuery,
+  useGetAllBusinessesQuery,
+  useGetFeaturedBusinessesQuery,
+  useGetBusinessesWithDealsQuery,
   useCreateBusinessMutation,
   useUpdateBusinessMutation,
   useUpdateBusinessHoursMutation,

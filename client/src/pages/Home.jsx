@@ -107,7 +107,7 @@ export function Home() {
                     <SearchPage />
                     </motion.div>
 
-                    <motion.div 
+                    {/* <motion.div 
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 }}
@@ -116,8 +116,8 @@ export function Home() {
                     <Button variant="outline" size="lg" className="bg-slate-800/50 backdrop-blur-lg hover:bg-slate-700/50 rounded-full border-slate-700">
                       <Filter className="h-5 w-5" />
                     </Button>
-                    </motion.div>
-              <motion.div 
+                    </motion.div> */}
+              {/* <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
@@ -140,7 +140,7 @@ export function Home() {
                     <Filter className="h-5 w-5" />
                   </Button>
                 </div>
-              </motion.div>
+              </motion.div> */}
             </div>
 
             {/* Stats Section */}

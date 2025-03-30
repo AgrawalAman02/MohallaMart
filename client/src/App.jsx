@@ -10,8 +10,8 @@ import { BusinessDetailPage } from './pages/Business/BusinessDetailPage';
 import { LoginPage } from './pages/Auth/LoginPage';
 import { RegisterPage } from './pages/Auth/RegisterPage';
 import { Dashboard } from './pages/Business/Dashboard';
-import SearchPage from './pages/search/search-page';
-import BusinessProfile from './pages/Business/BusinessProfile';
+// import SearchPage from './pages/search/search-page';
+// import BusinessProfile from './pages/Business/BusinessProfile';
 
 //import { Home } from '@/pages/Home';
 //import { BusinessDetailPage } from '@/pages/Business/BusinessDetailPage';
