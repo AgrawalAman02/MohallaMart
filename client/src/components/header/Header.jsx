@@ -77,59 +77,56 @@ export function Header() {
   );
 
   return (
-    <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="border-b border-slate-800 bg-slate-950/95 backdrop-blur supports-[backdrop-filter]:bg-slate-950/60">
       <div className="container flex h-16 items-center justify-between px-4">
         {/* Left side with logo and navigation */}
         <div className="flex items-center gap-2 md:gap-4">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
+              <Button variant="ghost" size="icon" className="md:hidden text-slate-400 hover:text-slate-100 hover:bg-slate-800/50">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left">
+            <SheetContent side="left" className="bg-slate-950 border-slate-800">
               <SheetHeader>
-                <SheetTitle>MohallaMart</SheetTitle>
+                <SheetTitle className="text-slate-100">MohallaMart</SheetTitle>
               </SheetHeader>
               <nav className="flex flex-col gap-4 mt-4">
-                <Link to="/" className="text-lg font-medium">Home</Link>
-                <Link to="/explore" className="text-lg font-medium">Explore</Link>
-                <Link to="/deals" className="text-lg font-medium">Deals</Link>
+                <Link to="/" className="text-lg font-medium text-slate-300 hover:text-indigo-400">Home</Link>
+                <Link to="/explore" className="text-lg font-medium text-slate-300 hover:text-indigo-400">Explore</Link>
+                <Link to="/deals" className="text-lg font-medium text-slate-300 hover:text-indigo-400">Deals</Link>
                 {isAuthenticated && user?.role === 'business-owner' && (
-                  <Link to="/dashboard" className="text-lg font-medium">Dashboard</Link>
+                  <Link to="/dashboard" className="text-lg font-medium text-slate-300 hover:text-indigo-400">Dashboard</Link>
                 )}
                 {isAuthenticated ? (
                   <>
-                    <Link to="/profile" className="text-lg font-medium">Profile</Link>
-                    <Button variant="outline" onClick={handleLogout}>Sign Out</Button>
+                    <Link to="/profile" className="text-lg font-medium text-slate-300 hover:text-indigo-400">Profile</Link>
+                    <Button variant="outline" onClick={handleLogout} 
+                      className="border-slate-700 text-slate-300 hover:bg-slate-800">Sign Out</Button>
                   </>
                 ) : (
-                  <Link to="/login" className="text-lg font-medium">Login</Link>
+                  <Link to="/login" className="text-lg font-medium text-slate-300 hover:text-indigo-400">Login</Link>
                 )}
               </nav>
             </SheetContent>
           </Sheet>
           
           <Link to="/" className="flex items-center gap-2">
-            <ShoppingBag className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold tracking-tight">MohallaMart</span>
+            <div className="bg-gradient-to-r from-indigo-500 to-blue-500 p-2 rounded-lg">
+              <ShoppingBag className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-blue-500">
+              MohallaMart
+            </span>
           </Link>
           
           <nav className="hidden md:flex items-center gap-6 text-sm">
-            <Link to="/" className="font-medium transition-colors hover:text-primary">
-              Home
-            </Link>
-            <Link to="/explore" className="font-medium transition-colors hover:text-primary">
-              Explore
-            </Link>
-            <Link to="/deals" className="font-medium transition-colors hover:text-primary">
-              Deals
-            </Link>
+            <Link to="/" className="font-medium text-slate-300 transition-colors hover:text-indigo-400">Home</Link>
+            <Link to="/explore" className="font-medium text-slate-300 transition-colors hover:text-indigo-400">Explore</Link>
+            <Link to="/deals" className="font-medium text-slate-300 transition-colors hover:text-indigo-400">Deals</Link>
             {isAuthenticated && user?.role === 'business-owner' && (
-              <Link to="/dashboard" className="font-medium transition-colors hover:text-primary">
-                Dashboard
-              </Link>
+              <Link to="/dashboard" className="font-medium text-slate-300 transition-colors hover:text-indigo-400">Dashboard</Link>
             )}
           </nav>
         </div>
@@ -137,18 +134,24 @@ export function Header() {
         {/* Right side with search and user actions */}
         <div className="flex items-center gap-2">
           <div className="hidden md:flex relative w-64">
-            <MapPin className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <MapPin className="absolute left-2.5 top-2.5 h-4 w-4 text-indigo-400" />
             <Input
               type="search"
               placeholder="Search nearby..."
-              className="w-full rounded-full pl-8 md:w-64 lg:w-80"
+              className="w-full rounded-full pl-8 md:w-64 lg:w-80 bg-slate-800/50 border-slate-700 text-slate-300 placeholder:text-slate-500 focus:border-indigo-500"
             />
           </div>
           
           {isAuthenticated ? (
             <UserMenu />
           ) : (
-            <Button size="sm" onClick={() => navigate('/login')}>Sign In</Button>
+            <Button 
+              size="sm" 
+              onClick={() => navigate('/login')}
+              className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white rounded-full"
+            >
+              Sign In
+            </Button>
           )}
         </div>
       </div>
