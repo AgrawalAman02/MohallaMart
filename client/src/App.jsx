@@ -37,7 +37,7 @@ function App() {
           {/* Add routes for managing deals and businesses */}
           <Route path="/business/deals/new" element={<div>New Deal Form</div>} />
           <Route path="/business/deals/edit/:id" element={<div>Edit Deal Form</div>} />
-          <Route path="/business/new" element={<div>New Business Form</div>} />
+          {/* <Route path="/business/new" element={<div>New Business Form</div>} /> */}
           <Route path="/business/manage/:id" element={<div>Manage Business</div>} />
           <Route path="/business-profile/:id" element={<BusinessProfile />} />
           <Route path="/search" element={<SearchPage />} />
