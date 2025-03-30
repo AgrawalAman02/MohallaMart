@@ -83,8 +83,8 @@ export function BusinessDetailPage() {
     ]
   };
   
-  const today = new Date().toLocaleDateString('en-US', { weekday: 'lowercase' });
-  
+  const today = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+      
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
