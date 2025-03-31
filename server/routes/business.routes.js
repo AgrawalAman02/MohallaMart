@@ -60,19 +60,7 @@ router.get('/search', async (req, res) => {
       ];
     }
     
-    // Add geospatial search if coordinates are provided
-    if (lat && lng) {
-      query.location = {
-        $near: {
-          $geometry: {
-            type: 'Point',
-            coordinates: [parseFloat(lng), parseFloat(lat)]
-          },
-          $maxDistance: parseFloat(radius) * 1000 // convert km to meters
-        }
-      };
-    }
-    
+  
     // Add category filter
     if (category) {
       query.category = category;
@@ -90,6 +78,47 @@ router.get('/search', async (req, res) => {
       businesses,
       totalPages: Math.ceil(count / limit),
       currentPage: page
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+router.get('/searchItems', async (req, res) => {
+  try {
+    const { q, category, page = 1, limit = 10 } = req.query;
+    
+    if (!q) {
+      return res.status(400).json({ message: 'Search query is required' });
+    }
+
+    const query = {
+      $or: [
+        { name: { $regex: q, $options: 'i' } },
+        { description: { $regex: q, $options: 'i' } },
+        { keywords: { $regex: q, $options: 'i' } },
+        { 'address.city': { $regex: q, $options: 'i' } },
+        { 'address.street': { $regex: q, $options: 'i' } },
+        { category: { $regex: q, $options: 'i' } }
+      ]
+    };
+
+    if (category) {
+      query.category = category;
+    }
+
+    const businesses = await Business.find(query)
+      .sort({ averageRating: -1 })
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+      .exec();
+
+    const count = await Business.countDocuments(query);
+
+    res.json({
+      businesses,
+      totalPages: Math.ceil(count / limit),
+      currentPage: parseInt(page),
+      totalResults: count
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

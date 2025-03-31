@@ -23,7 +23,7 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(false)
   const navigator = useNavigate();
   
-  const debouncedSearch = useDebounce(searchTerm, 500)
+  const debouncedSearch = useDebounce(searchTerm, 200)
 
   useEffect(() => {
     const fetchBusinesses = async () => {
